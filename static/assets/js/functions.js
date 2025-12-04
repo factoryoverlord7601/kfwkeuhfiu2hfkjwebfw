@@ -255,5 +255,48 @@ if (window.location.protocol === "http:") {
 }
 
 
-console.log("%cJoin our Discord! discord.gg/unblocking", "color: cyan; font-size: 20px");
+// Initialization: enable tab cloaking by default for new installs and auto-apply.
+// - If the advancedTabCloaking flag does not exist, set it to 'enabled'.
+// - If enabled, apply the cloaked title/icon. If the user hasn't set a cloak,
+//   we provide a sensible default (Search | M365 Copilot) so cloaking is active immediately.
+(function initTabCloakDefault() {
+  try {
+    // Set default to enabled for new installs only
+    if (localStorage.getItem('advancedTabCloaking') === null) {
+      localStorage.setItem('advancedTabCloaking', 'enabled');
+    }
 
+    if (localStorage.getItem('advancedTabCloaking') === 'enabled') {
+      // Use user-selected cloak if present, otherwise set a default cloak
+      var newTitle = localStorage.getItem('cloakedTitle') || "Search | M365 Copilot";
+      var newIcon = localStorage.getItem('cloakedIcon') || "https://res.cdn.office.net/officehub/images/content/images/favicon_copilot-4370172aa6.ico";
+
+      // Persist chosen defaults so future loads respect them
+      if (!localStorage.getItem('cloakedTitle')) {
+        localStorage.setItem('cloakedTitle', newTitle);
+      }
+      if (!localStorage.getItem('cloakedIcon')) {
+        localStorage.setItem('cloakedIcon', newIcon);
+      }
+
+      // Apply the cloak immediately
+      localStorage.setItem('tabTitle', newTitle);
+      localStorage.setItem('tabIcon', newIcon);
+      document.title = newTitle;
+
+      var icon = document.querySelector('link[rel="icon"]');
+      if (!icon) {
+        icon = document.createElement('link');
+        icon.rel = 'icon';
+        document.head.appendChild(icon);
+      }
+      icon.setAttribute('href', newIcon);
+    }
+  } catch (e) {
+    // Fail silently to avoid breaking pages where localStorage or DOM is restricted
+    console.warn('initTabCloakDefault failed:', e);
+  }
+})();
+
+
+console.log("%cJoin our Discord! discord.gg/unblocking", "color: cyan; font-size: 20px");
